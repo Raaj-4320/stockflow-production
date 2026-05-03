@@ -81,7 +81,6 @@ export function PurchasePartyList({
           </span>
         }
         confirmLabel="Delete"
-        variant="danger"
       />
     </>
   );

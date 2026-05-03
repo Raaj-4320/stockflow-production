@@ -89,20 +89,20 @@ export function Autocomplete({
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const ranked = useMemo(() => {
+  type Ranked = { value: string; score: number; kind: "saved" | "create" };
+  const ranked = useMemo<Ranked[]>(() => {
     const q = value.trim();
     if (!q) {
-      // unsorted, show saved as-is
-      return options.map((o) => ({ value: o, score: 1, kind: "saved" as const }));
+      return options.map<Ranked>((o) => ({ value: o, score: 1, kind: "saved" }));
     }
     const exact = options.find((o) => o.toLowerCase() === q.toLowerCase());
-    const scored = options
-      .map((o) => ({ value: o, score: fuzzyScore(q, o), kind: "saved" as const }))
+    const scored: Ranked[] = options
+      .map<Ranked>((o) => ({ value: o, score: fuzzyScore(q, o), kind: "saved" }))
       .filter((s) => s.score > 0)
       .sort((a, b) => b.score - a.score);
 
     if (!exact && allowCreate && q.length > 0) {
-      scored.push({ value: q, score: 0, kind: "create" as const });
+      scored.push({ value: q, score: 0, kind: "create" });
     }
     return scored;
   }, [options, value, allowCreate]);
