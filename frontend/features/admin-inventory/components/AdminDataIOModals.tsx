@@ -98,7 +98,7 @@ export function AdminExportModal({
         ...products.map((p) =>
           headers
             .map((h) => {
-              const v = (p as Record<string, unknown>)[h] ?? "";
+              const v = (p as unknown as Record<string, unknown>)[h] ?? "";
               const s = String(v).replace(/"/g, '""');
               return /[",\n]/.test(s) ? `"${s}"` : s;
             })
