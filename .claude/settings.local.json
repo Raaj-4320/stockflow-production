@@ -17,7 +17,11 @@
       "Bash(npx tsc *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(gh.exe --version)"
+      "Bash(gh.exe --version)",
+      "Bash(npm view *)",
+      "Bash(npm ls *)",
+      "Bash(npm audit *)",
+      "Bash(awk 'NR==173' /d/Stockflow-new-design/frontend/features/admin-inventory/components/AdminInventoryTable.tsx)"
     ]
   }
 }

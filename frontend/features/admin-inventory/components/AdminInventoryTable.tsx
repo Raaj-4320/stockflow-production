@@ -63,11 +63,14 @@ export function AdminInventoryTable({
   onAddPurchase,
   onHistory,
 }: TableProps) {
+  // The vertical scroll container is provided by the parent (the product
+  // panel) so that sticky <thead top:0> pins to the panel's top edge.
+  // We render the table directly with min-w to allow horizontal scroll
+  // on whichever ancestor has overflow-x:auto.
   return (
-    <div className="overflow-auto max-h-[calc(100vh-360px)] rounded-md">
-      <table className="w-full border-collapse min-w-[1100px]">
-        <thead className="sticky top-0 z-20 bg-bg-elevated shadow-[0_1px_0_var(--border)]">
-          <tr>
+    <table className="w-full border-collapse min-w-[1100px]">
+      <thead className="sticky top-0 z-10 bg-bg-elevated shadow-[0_1px_0_var(--border)]">
+        <tr>
             <Th width="36px">
               <Checkbox checked={allSelected} onChange={onToggleAll} />
             </Th>
@@ -167,7 +170,6 @@ export function AdminInventoryTable({
           )}
         </tbody>
       </table>
-    </div>
   );
 }
 

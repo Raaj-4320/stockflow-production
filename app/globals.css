@@ -134,6 +134,18 @@ textarea {
   color: inherit;
 }
 
+/* Hide spinner arrows on number inputs everywhere — they look ugly and the
+   wheel is disabled per-field anyway. Users type the value. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 button {
   background: none;
   border: none;

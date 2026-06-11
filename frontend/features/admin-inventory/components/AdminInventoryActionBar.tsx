@@ -6,7 +6,6 @@ import {
   FolderPlus,
   LayoutList,
   LayoutGrid,
-  Settings2,
 } from "lucide-react";
 import { Button } from "../../../shared/components/ui/Button";
 
@@ -17,7 +16,6 @@ interface ActionBarProps {
   onAddPurchase: () => void;
   onAddProduct: () => void;
   onAddCategory: () => void;
-  onManageCategories: () => void;
 }
 
 /**
@@ -32,7 +30,6 @@ export function AdminInventoryActionBar({
   onAddPurchase,
   onAddProduct,
   onAddCategory,
-  onManageCategories,
 }: ActionBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -59,15 +56,6 @@ export function AdminInventoryActionBar({
         onClick={onAddCategory}
       >
         Add Category
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        leftIcon={<Settings2 size={13} />}
-        onClick={onManageCategories}
-        title="Manage categories"
-      >
-        Manage
       </Button>
 
       <div className="inline-flex panel p-1 rounded-md ml-auto">
