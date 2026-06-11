@@ -20,11 +20,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen w-full flex">
-      {/* Desktop sidebar */}
+      {/*
+        Desktop sidebar.
+        The <aside> here is just a layout spacer that reserves the width;
+        the actual <Sidebar> uses position: fixed so it's pinned to the
+        viewport and never scrolls — matching the user-requested behavior
+        of "sidebar stays at the same place" while scrolling long lists.
+        --sidebar-w lets the fixed Sidebar pick up the same width.
+      */}
       <aside
-        className={`hidden lg:flex shrink-0 transition-[width] duration-200 ${
-          collapsed ? "w-[72px]" : "w-[240px]"
-        }`}
+        className="hidden lg:block shrink-0 transition-[width] duration-200"
+        style={
+          {
+            width: collapsed ? 72 : 240,
+            "--sidebar-w": collapsed ? "72px" : "240px",
+          } as React.CSSProperties
+        }
       >
         <Sidebar
           collapsed={collapsed}
@@ -58,7 +69,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="ml-2 text-sm font-semibold tracking-tight">Stockflow</div>
         </div>
 
-        <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
+        {/*
+          overflow-x: clip (not hidden) keeps vertical overflow visible so
+          `position: sticky` inside the page can pin to the viewport.
+        */}
+        <main className="flex-1 min-w-0" style={{ overflowX: "clip" }}>
+          {children}
+        </main>
       </div>
     </div>
   );

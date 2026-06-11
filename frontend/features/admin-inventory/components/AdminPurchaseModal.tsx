@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Modal } from "../../../shared/components/ui/Modal";
 import { Input } from "../../../shared/components/ui/Input";
+import { NumberInput } from "../../../shared/components/ui/NumberInput";
 import { Button } from "../../../shared/components/ui/Button";
 import { Tabs } from "../../../shared/components/ui/Tabs";
 import { Dropdown } from "../../../shared/components/ui/Dropdown";
@@ -140,22 +141,23 @@ export function AdminPurchaseModal({
       {tab === "add" ? (
         <div ref={formRef} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Input
+            <NumberInput
               label="Quantity"
-              type="number"
               required
+              allowDecimal={false}
+              min={0}
               value={qty}
-              onChange={(e) => setQty(Number(e.target.value) || 0)}
+              onChange={setQty}
               error={errors.qty}
               autoFocus
             />
-            <Input
+            <NumberInput
               label="Unit Cost"
-              type="number"
               required
               leftElement="₹"
+              min={0}
               value={unitCost}
-              onChange={(e) => setUnitCost(Number(e.target.value) || 0)}
+              onChange={setUnitCost}
               error={errors.unitCost}
             />
             <div>
@@ -193,12 +195,12 @@ export function AdminPurchaseModal({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Input
+            <NumberInput
               label="Amount Paid Now"
-              type="number"
               leftElement="₹"
+              min={0}
               value={amountPaid}
-              onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
+              onChange={setAmountPaid}
               error={errors.amountPaid}
               hint={`Outstanding: ${fmt(Math.max(0, totalAmount - amountPaid))}`}
             />

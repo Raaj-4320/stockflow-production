@@ -134,20 +134,21 @@ export function AdminVariantMatrix({
                     const cell = cellMap.get(cellKey(v, c));
                     return (
                       <td key={c} className="px-2 py-2 align-top">
-                        <div className="space-y-1">
+                        <div className="space-y-1.5 min-w-[120px]">
                           <MiniInput
-                            label="Stock"
+                            label="Quantity"
+                            allowDecimal={false}
                             value={cell?.stock ?? 0}
                             onChange={(n) => updateCell(v, c, "stock", n)}
                           />
                           <MiniInput
-                            label="Buy"
+                            label="Purchase Price"
                             value={cell?.buyPrice ?? 0}
                             onChange={(n) => updateCell(v, c, "buyPrice", n)}
                             prefix="₹"
                           />
                           <MiniInput
-                            label="Sell"
+                            label="Sell Price"
                             value={cell?.sellPrice ?? 0}
                             onChange={(n) => updateCell(v, c, "sellPrice", n)}
                             prefix="₹"
@@ -249,12 +250,28 @@ function MiniInput({
   value,
   onChange,
   prefix,
+  allowDecimal = true,
 }: {
   label: string;
   value: number;
   onChange: (n: number) => void;
   prefix?: string;
+  allowDecimal?: boolean;
 }) {
+  const allowedNavKeys = new Set([
+    "Backspace",
+    "Delete",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "Tab",
+    "Home",
+    "End",
+    "Enter",
+    "Escape",
+  ]);
+
   return (
     <label className="block">
       <span className="text-2xs text-muted block">{label}</span>
@@ -265,11 +282,31 @@ function MiniInput({
           </span>
         )}
         <input
-          type="number"
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value) || 0)}
-          className={`input-base h-7 text-xs ${prefix ? "pl-5" : ""}`}
+          type="text"
+          inputMode={allowDecimal ? "decimal" : "numeric"}
+          value={String(value)}
+          onWheel={(e) => (e.target as HTMLInputElement).blur()}
+          onKeyDown={(e) => {
+            if (e.metaKey || e.ctrlKey) return;
+            if (allowedNavKeys.has(e.key)) return;
+            if (/^[0-9]$/.test(e.key)) return;
+            if (allowDecimal && e.key === ".") {
+              if (e.currentTarget.value.includes(".")) e.preventDefault();
+              return;
+            }
+            e.preventDefault();
+          }}
+          onChange={(e) => {
+            let s = e.target.value.replace(/[^0-9.]/g, "");
+            if (!allowDecimal) s = s.replace(/\./g, "");
+            const dot = s.indexOf(".");
+            if (dot >= 0) {
+              s = s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, "");
+            }
+            const n = s === "" || s === "." ? 0 : Number(s);
+            if (!Number.isNaN(n)) onChange(n);
+          }}
+          className={`input-base h-7 text-xs nums ${prefix ? "pl-5" : ""}`}
         />
       </div>
     </label>

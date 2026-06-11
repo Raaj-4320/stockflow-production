@@ -74,8 +74,14 @@ export function Sidebar({
   return (
     <div
       className={clsx(
-        "h-screen sticky top-0 flex flex-col w-full glass border-r border-subtle",
-        mobile && "shadow-lg"
+        // Desktop: position:fixed pins the sidebar to the viewport regardless
+        // of how tall the page is, so it never slides up at the bottom of
+        // a long scroll. The <aside> wrapper in AppShell holds the layout
+        // gap so main content still gets the correct left offset.
+        // Mobile drawer keeps using its own positioning from AppShell.
+        "h-screen flex flex-col w-full glass border-r border-subtle",
+        mobile ? "relative shadow-lg" : "fixed top-0 left-0 z-20",
+        mobile ? "" : "lg:w-[var(--sidebar-w,240px)]"
       )}
     >
       {/* Brand */}

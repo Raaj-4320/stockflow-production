@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "../../../shared/components/ui/Modal";
-import { Input, Select } from "../../../shared/components/ui/Input";
+import { Input } from "../../../shared/components/ui/Input";
+import { NumberInput } from "../../../shared/components/ui/NumberInput";
+import { Dropdown } from "../../../shared/components/ui/Dropdown";
 import { Button } from "../../../shared/components/ui/Button";
 import { AdminVariantMatrix } from "./AdminVariantMatrix";
 import { useKeyboardShortcuts } from "../../../shared/hooks/useKeyboardShortcuts";
 import type { Category, Product, VariantCell } from "../types";
+import { ImagePlus, X as XIcon } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -106,6 +109,14 @@ export function AdminProductEditorModal({
       }
     >
       <div ref={formRef} className="space-y-5">
+        {/* Image upload — first thing in the form */}
+        <ProductImagePicker
+          imageUrl={draft.imageUrl}
+          onChange={(url) =>
+            setDraft((d) => ({ ...d, imageUrl: url || undefined }))
+          }
+        />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Input
             ref={firstFieldRef}
@@ -122,16 +133,13 @@ export function AdminProductEditorModal({
             onChange={(e) => setDraft({ ...draft, sku: e.target.value })}
             error={errors.sku}
           />
-          <Select
+          <Dropdown
             label="Category"
             required
-            options={[
-              { value: "", label: "Select category…" },
-              ...categories.map((c) => ({ value: c.name, label: c.name })),
-            ]}
             value={draft.category}
-            onChange={(e) => setDraft({ ...draft, category: e.target.value })}
-            error={errors.category}
+            onChange={(v) => setDraft({ ...draft, category: v })}
+            placeholder="Select category…"
+            options={categories.map((c) => ({ value: c.name, label: c.name }))}
           />
           <Input
             label="Barcode"
@@ -161,46 +169,37 @@ export function AdminProductEditorModal({
 
         {!draft.hasVariants ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <Input
-              label="Buy Price"
-              type="number"
+            <NumberInput
+              label="Purchase Price"
               required
               leftElement="₹"
+              min={0}
               value={draft.buyPrice}
-              onChange={(e) =>
-                setDraft({ ...draft, buyPrice: Number(e.target.value) || 0 })
-              }
+              onChange={(n) => setDraft({ ...draft, buyPrice: n })}
               error={errors.buyPrice}
             />
-            <Input
+            <NumberInput
               label="Sell Price"
-              type="number"
               required
               leftElement="₹"
+              min={0}
               value={draft.sellPrice}
-              onChange={(e) =>
-                setDraft({ ...draft, sellPrice: Number(e.target.value) || 0 })
-              }
+              onChange={(n) => setDraft({ ...draft, sellPrice: n })}
               error={errors.sellPrice}
             />
-            <Input
-              label="Stock"
-              type="number"
+            <NumberInput
+              label="Quantity in Stock"
+              allowDecimal={false}
+              min={0}
               value={draft.stock}
-              onChange={(e) =>
-                setDraft({ ...draft, stock: Number(e.target.value) || 0 })
-              }
+              onChange={(n) => setDraft({ ...draft, stock: n })}
             />
-            <Input
+            <NumberInput
               label="Low Stock Threshold"
-              type="number"
+              allowDecimal={false}
+              min={0}
               value={draft.lowStockThreshold}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  lowStockThreshold: Number(e.target.value) || 0,
-                })
-              }
+              onChange={(n) => setDraft({ ...draft, lowStockThreshold: n })}
             />
           </div>
         ) : (
@@ -230,5 +229,90 @@ export function AdminProductEditorModal({
         )}
       </div>
     </Modal>
+  );
+}
+
+function ProductImagePicker({
+  imageUrl,
+  onChange,
+}: {
+  imageUrl?: string;
+  onChange: (url: string | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be 5 MB or smaller");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === "string") onChange(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div>
+      <div className="text-sm font-medium text-secondary mb-1.5">
+        Product Image
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files?.[0])}
+      />
+      {imageUrl ? (
+        <div className="flex items-start gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt="Product preview"
+            className="w-24 h-24 rounded-md object-cover border border-subtle"
+          />
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              leftIcon={<ImagePlus size={13} />}
+            >
+              Replace
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => onChange(null)}
+              leftIcon={<XIcon size={13} />}
+            >
+              Remove
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="w-full panel hover:bg-surface-hover transition-colors p-5 flex flex-col items-center justify-center gap-2 cursor-pointer"
+        >
+          <div className="w-10 h-10 rounded-lg bg-surface-active grid place-items-center text-secondary">
+            <ImagePlus size={18} />
+          </div>
+          <div className="text-sm font-medium">Click to upload an image</div>
+          <div className="text-xs text-muted">PNG, JPG, WebP — up to 5 MB</div>
+        </button>
+      )}
+    </div>
   );
 }

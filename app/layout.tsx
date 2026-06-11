@@ -27,7 +27,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      {/*
+        suppressHydrationWarning here is intentional: browser extensions
+        (ColorZilla → cz-shortcut-listen, Grammarly → data-gr-*, LastPass →
+        data-lpignore, etc.) inject attributes onto <body> before React
+        hydrates, producing a benign hydration warning. This flag silences
+        only the one-level attribute diff on <body>, not its children.
+      */}
+      <body suppressHydrationWarning>
         <AppShell>{children}</AppShell>
       </body>
     </html>
